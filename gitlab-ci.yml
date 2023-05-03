@@ -1,0 +1,79 @@
+variables:
+  OPENSHIFT_VERSIONS: 4.12.0 4.11.0 4.10.0 # versions to build images for
+  OPENSHIFT_VERSION: "4.12.0" # version to test against
+  REGISTRY_TOKEN: "FOO" # define this in repo variables! used to push images to your registry
+  REGISTRY_URL: "quay.io/pfeifferj/openpipe" # define registry url
+  PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local)
+  consent-telemetry: "no" # Consent to collection of anonymous usage data (yes/no)
+  cpus: 4 # Number of CPU cores (must be greater than or equal to '4')
+  disable-update-check: false # Disable update check (true/false, default: false)
+  disk-size: 31 # Total size in GiB of the disk (must be greater than or equal to '31')
+  enable-cluster-monitoring: false # Enable cluster monitoring Operator (true/false, default: false)
+  enable-experimental-features: false # Enable experimental features (true/false, default: false)
+  # enable-shared-dirs: # Mounts host's home directory at '/' in the CRC VM (true/false, default: true)
+  # host-network-access: # Allow TCP/IP connections from the CRC VM to services running on the host (true/false, default: false)
+  # http-proxy: # HTTP proxy URL (string, like 'http://my-proxy.com:8443')
+  # https-proxy: # HTTPS proxy URL (string, like 'https://my-proxy.com:8443')
+  # ingress-http-port: # HTTP port to use for OpenShift ingress/routes on the host (1024-65535, default: 80)
+  # ingress-https-port: # HTTPS port to use for OpenShift ingress/routes on the host (1024-65535, default: 443)
+  # kubeadmin-password: # User defined kubeadmin password
+  memory: 9216 # Memory size in MiB (must be greater than or equal to '9216')
+  # nameserver: "" # IPv4 address of nameserver (string, like '1.1.1.1 or 8.8.8.8')
+  # network-mode: "" # Network mode (user or system)
+  # no-proxy: "" # Hosts, ipv4 addresses or CIDR which do not use a proxy (string, comma-separated list such as '127.0.0.1,192.168.100.1/24')
+  preset: "openshift" # Virtual machine preset (valid values are: podman, openshift and okd)
+  # proxy-ca-file: "" # Path to an HTTPS proxy certificate authority (CA)
+  pull-secret-file: "pullsecret" # Path of image pull secret (download from https://console.redhat.com/openshift/create/local)
+  skip-check-admin-helper-cached: false # Skip preflight check (true/false, default: false)
+  skip-check-bundle-extracted: false # Skip preflight check (true/false, default: false)
+  skip-check-crc-dnsmasq-file: false # Skip preflight check (true/false, default: false)
+  skip-check-crc-network: false # Skip preflight check (true/false, default: false)
+  skip-check-crc-network-active: false # Skip preflight check (true/false, default: false)
+  skip-check-crc-symlink: false # Skip preflight check (true/false, default: false)
+  skip-check-daemon-systemd-sockets: false # Skip preflight check (true/false, default: false)
+  skip-check-daemon-systemd-unit: false # Skip preflight check (true/false, default: false)
+  skip-check-kvm-enabled: false # Skip preflight check (true/false, default: false)
+  skip-check-libvirt-driver: false # Skip preflight check (true/false, default: false)
+  skip-check-libvirt-group-active: false # Skip preflight check (true/false, default: false)
+  skip-check-libvirt-installed: false # Skip preflight check (true/false, default: false)
+  skip-check-libvirt-running: false # Skip preflight check (true/false, default: false)
+  skip-check-libvirt-version: false # Skip preflight check (true/false, default: false)
+  skip-check-network-manager-config: false # Skip preflight check (true/false, default: false)
+  skip-check-network-manager-installed: false # Skip preflight check (true/false, default: false)
+  skip-check-network-manager-running: false # Skip preflight check (true/false, default: false)
+  skip-check-obsolete-admin-helper: false # Skip preflight check (true/false, default: false)
+  skip-check-ram: false # Skip preflight check (true/false, default: false)
+  skip-check-root-user: false # Skip preflight check (true/false, default: false)
+  skip-check-supported-cpu-arch: false # Skip preflight check (true/false, default: false)
+  skip-check-systemd-networkd-running: false # Skip preflight check (true/false, default: false)
+  skip-check-user-in-libvirt-group: false # Skip preflight check (true/false, default: false)
+  skip-check-virt-enabled: false # Skip preflight check (true/false, default: false)
+  skip-check-vsock: false # Skip preflight check (true/false, default: false)
+  skip-check-wsl2: false # Skip preflight check (true/false, default: false)
+
+stages:
+  - prepare-images
+  - setup
+  - test
+
+build_container_images:
+  image: podman
+  stage: prepare-images
+  when: manual
+  before_script:
+    - echo $REGISTRY_PASSWORD | podman login -u $REGISTRY_USER --password-stdin quay.io
+  script:
+    - for version in "${OPENSHIFT_VERSIONS[@]}"; do
+      podman build -t "openpipe:${version}" --build-arg VERSION="$version" .
+      podman push "openpipe:${version}"
+      done
+
+setup_openshift_local:
+  stage: setup
+  image: "${$REGISTRY_URL}/${$OPENSHIFT_VERSION}"
+  script:
+    - echo $PULL_SECRET > pullsecret
+    - crc config --pullsecret-file pullsecret
+
+apply_custom_config:
+  stage: setup
