@@ -71,9 +71,15 @@ build_container_images:
 setup_openshift_local:
   stage: setup
   image: "${$REGISTRY_URL}/${$OPENSHIFT_VERSION}"
+  timeout: 3h 30m
   script:
     - echo $PULL_SECRET > pullsecret
-    - crc config --pullsecret-file pullsecret
+    - crc config set pullsecret-file $pullsecret
+    # todo: add remaining config options
+    - crc setup
+    - crc start
+    - crc oc-env
+    - crc console --credentials
 
 apply_custom_config:
   stage: setup

@@ -29,10 +29,10 @@ dnf -y install NetworkManager
 
 # map crc release to openshift version
 declare -A VERSION_MAP=(
-  ["4.7"]="1.24.0"
-  ["4.6"]="1.23.0"
-  ["4.5"]="1.21.0"
-  ["4.4"]="1.19.0"
+  ["4.12.13"]="2.18.0" # latest
+  ["4.12.0"]="2.13.1"
+  ["4.11.0"]="2.7.1"
+  ["4.10.3"]="2.0.1"
 )
 
 # look up the CRC release version
