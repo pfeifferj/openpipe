@@ -4,12 +4,18 @@ work in progress gitlab-ci pipeline that sets up openshift local in a gitlab run
 
 This is an open source project that enables users to run integration tests against an OpenShift local cluster in their GitLab CI pipelines. The integration tests are written in any language and framework, and this tool provides an easy way to set up and tear down a local cluster for testing.
 
+OpenPipe aims to shift left integration tests by eliminating the operational overhead a full-on dev cluster brings with it.
+
+If you're looking for a more lightweight, but less production-like solution that mocks the OpenShift API, check out [project].
+
 ## Minimal requirements
 
 - image registry credentials
 - gitlab runner with connectivity to your image registry
-- gitlab runner with virutalization enabled in BIOS
+- gitlab runner with virutalization enabled in host system BIOS
+- gitlab runner with [privileged mode enabled](https://docs.gitlab.com/runner/executors/docker.html#privileged-mode) (sandboxed containers recommended for workload isolation for runners on Kubernetes clusters)
 - gitlab runner with at least 9216MiB memory, 31GiB disk, 4 CPU cores (this is the minimum for the base cluster to run. extensve custom configuration, and resource intensive deployments will require more resources)
+- if your gitlab runner host system uses SELinux and you want to run containers with systemd you have set the container_manage_cgroup boolean variable: `setsebool -P container_manage_cgroup 1`
 - a pull secret from https://console.redhat.com/openshift/create/local
 
 ## Optional
@@ -48,13 +54,15 @@ Create a `run-tests.sh` script in the root of your project that runs your integr
 
 Push your changes to GitLab and watch the pipeline run the integration tests against the OpenShift local cluster.
 
-## Available variables
+<!-- ## Available variables -->
 
-OpenShift credentials
+<!-- OpenShift credentials -->
 
 ## Configuration
 
-The following environment variables can be used to configure the integration test runner:
+https://quay.io/repository/openpipe/oc-local-runner?tab=tags
+
+<!-- The following environment variables can be used to configure the integration test runner: -->
 
 ## Limitations & pitfalls
 
@@ -68,7 +76,9 @@ Alternatively, gitlab premium/ultimate subscribers have the option to use SaaS r
 
 ### Planned
 
+- Streamline gitlab pipeline to use parallel matrix
 - Functionality to cache cluster configuration (basline .crc configs, maybe also custom configs built into custom testing images to reduce cold start time)
+- Automatically map releases to OCP versions from https://github.com/crc-org/crc/releases
 
 ## Contributing
 

@@ -45,7 +45,7 @@ variables:
   # skip-check-ram: false # Skip preflight check (true/false, default: false)
   SKIP_CHECK_ROOT_USER: "true" # Skip preflight check (true/false)
   # skip-check-supported-cpu-arch: false # Skip preflight check (true/false, default: false)
-  # skip-check-systemd-networkd-running: false # Skip preflight check (true/false, default: false)
+  SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING: "true" # Skip preflight check (true/false)
   # skip-check-user-in-libvirt-group: false # Skip preflight check (true/false, default: false)
   # skip-check-virt-enabled: false # Skip preflight check (true/false, default: false)
   # skip-check-vsock: false # Skip preflight check (true/false, default: false)
@@ -81,11 +81,15 @@ setup_openshift_local:
   image: "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
   timeout: 3h 30m
   script:
+    - |
+      dnf -y groupinstall "Virtualization" && \
+      dnf -y groupinstall "Virtualization Platform"
     - echo $PULL_SECRET > pullsecret
     - crc config set pull-secret-file ./pullsecret
     - crc config set consent-telemetry $CONSENT_TELEMETRY
-    - crc config set skip-check-root-user $SKIP_CHECK_ROOT_USER # true to run in privileged container
-    - crc config set skip-check-admin-helper-cached $SKIP_CHECK_ADMIN_HELPER_CACHED # true to run in container without sudo executable
+    # - crc config set skip-check-root-user $SKIP_CHECK_ROOT_USER # true to run in privileged container
+    # - crc config set skip-check-admin-helper-cached $SKIP_CHECK_ADMIN_HELPER_CACHED # true to run in container without sudo executable
+    - crc config set $SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING # if no kernel module in container
     # todo: add remaining config options
     - crc setup
     - crc start

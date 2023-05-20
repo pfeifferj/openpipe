@@ -25,9 +25,19 @@ then
     exit 1
 fi
 
-dnf -y install xz sudo
+dnf -y install subscription-manager && \
+    subscription-manager register --auto-attach && \
+    subscription-manager repos --enable=rhel-9-server-rpms && \
+    subscription-manager repos --enable=rhel-9-server-extras-rpms && \
+    subscription-manager repos --enable=rhel-9-server-optional-rpms && \
+dnf config-manager --set-enabled ubi-9-appstream
 
-# map crc release to openshift version
+dnf -y update && \
+dnf -y install  xz \
+                sudo
+
+# map crc release to openshift version 
+## from: https://github.com/crc-org/crc/releases
 declare -A VERSION_MAP=(
   ["latest"]="2.18.0"
   ["4.12.13"]="2.18.0" # latest
@@ -52,7 +62,8 @@ fi
 
 # extract binary 
 tar -xvf crc-linux-amd64.tar.xz
-mkdir -p ~/bin
-cp crc-linux-*-amd64/crc /bin
-export PATH=$PATH:/bin
-echo 'export PATH=$PATH:root/bin' >> root/.bashrc
+
+mkdir -p /usr/local/bin
+cp crc-linux-*-amd64/crc /usr/local/bin/
+export PATH=$PATH:/usr/local/bin
+echo 'export PATH=$PATH:root/bin' >> /root/.bashrc
