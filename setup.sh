@@ -34,7 +34,11 @@ dnf config-manager --set-enabled ubi-9-appstream
 
 dnf -y update && \
 dnf -y install  xz \
-                sudo
+                sudo \
+                git
+dnf -y --enablerepo=crb install  libvirt \
+                libvirt-daemon-kvm \
+                qemu-kvm
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases
