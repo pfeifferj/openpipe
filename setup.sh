@@ -25,7 +25,7 @@ then
     exit 1
 fi
 
-dnf -y install xz sudo
+dnf -y install xz sudo libvirt libvirt-daemon-kvm qemu-kvm
 
 # map crc release to openshift version
 declare -A VERSION_MAP=(

@@ -9,6 +9,7 @@ This is an open source project that enables users to run integration tests again
 - image registry credentials
 - gitlab runner with connectivity to your image registry
 - gitlab runner with virutalization enabled in BIOS
+- gitlab runner with privileged mode enabled (sandboxed containers recommended)
 - gitlab runner with at least 9216MiB memory, 31GiB disk, 4 CPU cores (this is the minimum for the base cluster to run. extensve custom configuration, and resource intensive deployments will require more resources)
 - a pull secret from https://console.redhat.com/openshift/create/local
 
