@@ -1,56 +1,59 @@
 variables:
+# general config
   OPENSHIFT_VERSIONS: "latest/4.12.13/4.12.0/4.11.0/4.10.3" # versions to build images for
   OPENSHIFT_VERSION: "4.12.0" # version to test against
-  # REGISTRY_PASSWORD: {} # define this in repo variables! used to push images to your registry
-  # REGISTRY_USER: {}
   REGISTRY_URL: "quay.io/openpipe/oc-local-runner" # define registry url
-  # PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local)
+  ## RUNNER_TAG: {}
+# config to set in repo variables
+  ## PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local) 
+  ## REGISTRY_PASSWORD: {} # define this in repo variables! used to push images to your registry
+  ## REGISTRY_USER: {}
+# crc config variables
   CONSENT_TELEMETRY: "no" # Consent to collection of anonymous usage data (yes/no)
   CPUS: 4 # Number of CPU cores (must be greater than or equal to '4')
   DISABLE_UPDATE_CHECK: "true" # Disable update check (true/false, default: true)
   DISK_SIZE: 31 # Total size in GiB of the disk (must be greater than or equal to '31')
   ENABLE_CLUSTER_MONITORING: "false" # Enable cluster monitoring Operator (true/false, default: false)
   ENABLE_EXPERIMENTAL_FEATURES: "false" # Enable experimental features (true/false, default: false)
-  # enable-shared-dirs: # Mounts host's home directory at '/' in the CRC VM (true/false, default: true)
-  # host-network-access: # Allow TCP/IP connections from the CRC VM to services running on the host (true/false, default: false)
-  # http-proxy: # HTTP proxy URL (string, like 'http://my-proxy.com:8443')
-  # https-proxy: # HTTPS proxy URL (string, like 'https://my-proxy.com:8443')
-  # ingress-http-port: # HTTP port to use for OpenShift ingress/routes on the host (1024-65535, default: 80)
-  # ingress-https-port: # HTTPS port to use for OpenShift ingress/routes on the host (1024-65535, default: 443)
-  # kubeadmin-password: # User defined kubeadmin password
+  # ENABLE_SHARED_DIRS: # Mounts host's home directory at '/' in the CRC VM (true/false, default: true)
+  # HOST_NETWORK_ACCESS: # Allow TCP/IP connections from the CRC VM to services running on the host (true/false, default: false)
+  # HTTP_PROXY: # HTTP proxy URL (string, like 'http://my-proxy.com:8443')
+  # HTTPS_PROXY: # HTTPS proxy URL (string, like 'https://my-proxy.com:8443')
+  # INGRESS_HTTP_PORT: # HTTP port to use for OpenShift ingress/routes on the host (1024-65535, default: 80)
+  # INGRESS_HTTPS_PORT: # HTTPS port to use for OpenShift ingress/routes on the host (1024-65535, default: 443)
+  # KUBEADMIN_PASSWORD: # User defined kubeadmin password
   MEMORY: 9216 # Memory size in MiB (must be greater than or equal to '9216')
-  # nameserver: "" # IPv4 address of nameserver (string, like '1.1.1.1 or 8.8.8.8')
-  # network-mode: "" # Network mode (user or system)
-  # no-proxy: "" # Hosts, ipv4 addresses or CIDR which do not use a proxy (string, comma-separated list such as '127.0.0.1,192.168.100.1/24')
+  # NAMESERVER: "" # IPv4 address of nameserver (string, like '1.1.1.1 or 8.8.8.8')
+  # NETWORK_MODE: "" # Network mode (user or system)
+  # NO_PROXY: "" # Hosts, ipv4 addresses or CIDR which do not use a proxy (string, comma-separated list such as '127.0.0.1,192.168.100.1/24')
   PRESET: "openshift" # Virtual machine preset (valid values are: podman, openshift and okd)
-  # proxy-ca-file: "" # Path to an HTTPS proxy certificate authority (CA)
+  # PROXY_CA_FILE: "" # Path to an HTTPS proxy certificate authority (CA)
   SKIP_CHECK_ADMIN_HELPER_CACHED: "true" # Skip preflight check (true/false)
-  # skip-check-bundle-extracted: false # Skip preflight check (true/false, default: false)
-  # skip-check-crc-dnsmasq-file: false # Skip preflight check (true/false, default: false)
-  # skip-check-crc-network: false # Skip preflight check (true/false, default: false)
-  # skip-check-crc-network-active: false # Skip preflight check (true/false, default: false)
-  # skip-check-crc-symlink: false # Skip preflight check (true/false, default: false)
-  # skip-check-daemon-systemd-sockets: false # Skip preflight check (true/false, default: false)
-  # skip-check-daemon-systemd-unit: false # Skip preflight check (true/false, default: false)
-  # skip-check-kvm-enabled: false # Skip preflight check (true/false, default: false)
-  # skip-check-libvirt-driver: false # Skip preflight check (true/false, default: false)
-  # skip-check-libvirt-group-active: false # Skip preflight check (true/false, default: false)
-  # skip-check-libvirt-installed: false # Skip preflight check (true/false, default: false)
-  # skip-check-libvirt-running: false # Skip preflight check (true/false, default: false)
-  # skip-check-libvirt-version: false # Skip preflight check (true/false, default: false)
-  # skip-check-network-manager-config: false # Skip preflight check (true/false, default: false)
-  # skip-check-network-manager-installed: false # Skip preflight check (true/false, default: false)
-  # skip-check-network-manager-running: false # Skip preflight check (true/false, default: false)
-  # skip-check-obsolete-admin-helper: false # Skip preflight check (true/false, default: false)
-  # skip-check-ram: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_BUNDLE_EXTRACTED: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_CRC_DNSMASQ_FILE: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_CRC_NETWORK: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_CRC_NETWORK_ACTIVE: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_CRC_SYMLINK: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_DAEMON_SYSTEMD_SOCKETS: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_DAEMON_SYSTEMD_UNIT: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_KVM_ENABLED: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_LIBVIRT_DRIVER: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_LIBVIRT_GROUP_ACTIVE: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_LIBVIRT_INSTALLED: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_LIBVIRT_RUNNING: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_LIBVIRT_VERSION: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_NETWORK_MANAGER_CONFIG: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_NETWORK_MANAGER_INSTALLED: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_NETWORK_MANAGER_RUNNING: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_OBSOLETE_ADMIN_HELPER: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_RAM: false # Skip preflight check (true/false, default: false)
   SKIP_CHECK_ROOT_USER: "true" # Skip preflight check (true/false)
-  # skip-check-supported-cpu-arch: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_SUPPORTED_CPU_ARCH: false # Skip preflight check (true/false, default: false)
   SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING: "true" # Skip preflight check (true/false)
-  # skip-check-user-in-libvirt-group: false # Skip preflight check (true/false, default: false)
-  # skip-check-virt-enabled: false # Skip preflight check (true/false, default: false)
-  # skip-check-vsock: false # Skip preflight check (true/false, default: false)
-  # skip-check-wsl2: false # Skip preflight check (true/false, default: false)
-  # RUNNER_TAG: {}
+  # SKIP_CHECK_USER_IN_LIBVIRT_GROUP: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_VIRT_ENABLED: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_VSOCK: false # Skip preflight check (true/false, default: false)
+  # SKIP_CHECK_WSL2: false # Skip preflight check (true/false, default: false)
 
 stages:
   - prepare-images
@@ -79,19 +82,15 @@ build_container_images:
 setup_openshift_local:
   stage: setup
   image: "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
-  timeout: 3h 30m
-  script:
-    - |
-      dnf -y groupinstall "Virtualization" && \
-      dnf -y groupinstall "Virtualization Platform"
+  timeout: 3h 30m 
+  before_script:
+    - cd ~/
+    - git clone https://github.com/pfeifferj/openpipe && cd openpipe
+    - sh crc-config.sh  
     - echo $PULL_SECRET > pullsecret
     - crc config set pull-secret-file ./pullsecret
-    - crc config set consent-telemetry $CONSENT_TELEMETRY
-    # - crc config set skip-check-root-user $SKIP_CHECK_ROOT_USER # true to run in privileged container
-    # - crc config set skip-check-admin-helper-cached $SKIP_CHECK_ADMIN_HELPER_CACHED # true to run in container without sudo executable
-    - crc config set $SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING # if no kernel module in container
-    # todo: add remaining config options
     - crc setup
+  script:
     - crc start
     - crc oc-env
     - crc console --credentials
