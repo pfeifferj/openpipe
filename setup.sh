@@ -25,20 +25,16 @@ then
     exit 1
 fi
 
-dnf -y install subscription-manager && \
-    subscription-manager register --auto-attach && \
-    subscription-manager repos --enable=rhel-9-server-rpms && \
-    subscription-manager repos --enable=rhel-9-server-extras-rpms && \
-    subscription-manager repos --enable=rhel-9-server-optional-rpms && \
-dnf config-manager --set-enabled ubi-9-appstream
+apk add  xz \
+         sudo \
+         git \
+         qemu-img \
+         qemu-system-x86_64 \
+         qemu-modules \
+         libvirt-daemon \
+         py-libvirt \
+         openrc
 
-dnf -y update && \
-dnf -y install  xz \
-                sudo \
-                git
-dnf -y --enablerepo=crb install  libvirt \
-                libvirt-daemon-kvm \
-                qemu-kvm
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases

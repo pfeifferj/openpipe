@@ -1,4 +1,4 @@
-FROM ubi9/ubi:9.1
+FROM alpine:latest
 USER root
 LABEL maintainer="Josephine Pfeiffer <jpfeiffe@redhat.com>"
 
