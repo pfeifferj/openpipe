@@ -19,24 +19,17 @@ do
 done
 
 # check that the version number is set
-if [ -z "$VERSION" ]
+if [[ -z "$VERSION" ]]
 then
     echo "Version number not specified."
     exit 1
 fi
 
-dnf -y install subscription-manager && \
-    subscription-manager register --auto-attach && \
-    subscription-manager repos --enable=rhel-9-server-rpms && \
-    subscription-manager repos --enable=rhel-9-server-extras-rpms && \
-    subscription-manager repos --enable=rhel-9-server-optional-rpms && \
-dnf config-manager --set-enabled ubi-9-appstream
-
 dnf -y update && \
 dnf -y install  xz \
                 sudo \
-                git
-dnf -y --enablerepo=crb install  libvirt \
+                git \
+                libvirt \
                 libvirt-daemon-kvm \
                 qemu-kvm
 
@@ -57,7 +50,7 @@ CRC_VERSION=${VERSION_MAP[$VERSION]}
 curl -L -O "https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/${CRC_VERSION}/crc-linux-amd64.tar.xz"
 
 # Check if the download was successful
-if [ $? -eq 0 ]
+if [[ $? -eq 0 ]]
 then
     echo "Download complete."
 else
