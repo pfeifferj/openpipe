@@ -4,6 +4,7 @@ LABEL maintainer="Josephine Pfeiffer <jpfeiffe@redhat.com>"
 
 ARG VERSION=latest
 ENV VERSION=$VERSION
+ENV SMDEV_CONTAINER_OFF=1
 
 COPY setup.sh .
 
