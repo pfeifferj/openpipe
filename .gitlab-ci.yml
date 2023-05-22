@@ -84,7 +84,7 @@ setup_openshift_local:
   image: "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
   timeout: 3h 30m 
   before_script:
-    - sudo systemctl start libvirtd.service
+    - sudo systemctl status libvirtd.service
     - cd ~/
     - git clone https://github.com/pfeifferj/openpipe && cd openpipe
     - sh crc-config.sh  
