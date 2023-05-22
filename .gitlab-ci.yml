@@ -39,7 +39,7 @@ variables:
   # SKIP_CHECK_KVM_ENABLED: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_DRIVER: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_GROUP_ACTIVE: false # Skip preflight check (true/false, default: false)
-  # SKIP_CHECK_LIBVIRT_INSTALLED: false # Skip preflight check (true/false, default: false)
+  SKIP_CHECK_LIBVIRT_INSTALLED: "true" # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_RUNNING: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_VERSION: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_NETWORK_MANAGER_CONFIG: false # Skip preflight check (true/false, default: false)
