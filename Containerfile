@@ -17,3 +17,5 @@ RUN echo "crc-user:mypassword" | chpasswd && \
     echo "crc-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/crc-user && chmod 440 /etc/sudoers.d/crc-user && \
     chown root:root /etc/sudoers.d/crc-user
 USER crc-user
+
+CMD ["/sbin/init"]
