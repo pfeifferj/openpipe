@@ -25,16 +25,13 @@ then
     exit 1
 fi
 
-apk add --no-cache  curl \
-                    xz \
-                    sudo \
-                    git \
-                    qemu-img \
-                    qemu-system-x86_64 \
-                    qemu-modules \
-                    libvirt-daemon \
-                    py-libvirt \
-                    openrc
+dnf -y update && \
+dnf -y install  xz \
+                sudo \
+                git \
+                libvirt \
+                libvirt-daemon-kvm \
+                qemu-kvm
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases
