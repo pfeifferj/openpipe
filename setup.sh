@@ -35,6 +35,7 @@ apk add  xz \
          py-libvirt \
          openrc
 
+
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases
 declare -A VERSION_MAP=(
