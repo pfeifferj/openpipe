@@ -32,8 +32,8 @@ dnf -y install  xz \
                 libvirt \
                 libvirt-daemon-kvm \
                 qemu-kvm
-                
-systemctl enable --now libvirtd.service
+
+systemctl enable --now libvirtd
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases

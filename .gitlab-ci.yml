@@ -86,7 +86,8 @@ setup_openshift_local:
   before_script:
     - sudo systemctl status libvirtd.service
     - cd ~/
-    - git clone https://github.com/pfeifferj/openpipe && cd openpipe
+    - git clone https://github.com/pfeifferj/openpipe || true 
+    - cd openpipe
     - sh crc-config.sh  
     - echo $PULL_SECRET > pullsecret
     - crc config set pull-secret-file ./pullsecret
