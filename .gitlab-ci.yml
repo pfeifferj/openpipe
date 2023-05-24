@@ -1,14 +1,14 @@
 variables:
-# general config
+  # general config
   OPENSHIFT_VERSIONS: "latest/4.12.13/4.12.0/4.11.0/4.10.3" # versions to build images for
   OPENSHIFT_VERSION: "4.12.0" # version to test against
   REGISTRY_URL: "quay.io/openpipe/oc-local-runner" # define registry url
   ## RUNNER_TAG: {}
-# config to set in repo variables
-  ## PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local) 
+  # config to set in repo variables
+  ## PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local)
   ## REGISTRY_PASSWORD: {} # define this in repo variables! used to push images to your registry
   ## REGISTRY_USER: {}
-# crc config variables
+  # crc config variables
   CONSENT_TELEMETRY: "no" # Consent to collection of anonymous usage data (yes/no)
   CPUS: 4 # Number of CPU cores (must be greater than or equal to '4')
   DISABLE_UPDATE_CHECK: "true" # Disable update check (true/false, default: true)
@@ -82,12 +82,13 @@ build_container_images:
 setup_openshift_local:
   stage: setup
   image: "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
-  timeout: 3h 30m 
+  timeout: 3h 30m
   before_script:
     - sudo systemctl status libvirtd.service
     - cd ~/
-    - git clone https://github.com/pfeifferj/openpipe && cd openpipe
-    - sh crc-config.sh  
+    - git clone https://github.com/pfeifferj/openpipe || true
+    - cd openpipe
+    - /bin/bash crc-config.sh
     - echo $PULL_SECRET > pullsecret
     - crc config set pull-secret-file ./pullsecret
     - crc setup

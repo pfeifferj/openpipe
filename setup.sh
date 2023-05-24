@@ -32,8 +32,8 @@ dnf -y install  xz \
                 libvirt \
                 libvirt-daemon-kvm \
                 qemu-kvm
-                
-systemctl enable --now libvirtd.service
+
+systemctl enable --now libvirtd
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases
@@ -66,3 +66,6 @@ mkdir -p /usr/local/bin
 cp crc-linux-*-amd64/crc /usr/local/bin/
 export PATH=$PATH:/usr/local/bin
 echo 'export PATH=$PATH:root/bin' >> /root/.bashrc
+
+rm -rf crc-linux-*-amd64
+rm crc-linux-amd64.tar.xz
