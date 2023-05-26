@@ -1,1 +1,28 @@
 # configure gitlab runner to share systemd units
+
+concurrent = 1
+check_interval = 0
+shutdown_timeout = 0
+
+[session_server]
+  session_timeout = 1800
+
+[[runners]]
+  name = ""
+  url = "https://gitlab.com"
+  id = 23217167
+  token = ""
+  token_obtained_at = 2023-05-26T12:09:04Z
+  token_expires_at = 0001-01-01T00:00:00Z
+  executor = "docker"
+  [runners.cache]
+    MaxUploadedArchiveSize = 0
+  [runners.docker]
+    tls_verify = false
+    image = "fedora"
+    privileged = true
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:ro","/cache"]
+    shm_size = 0
