@@ -66,3 +66,6 @@ mkdir -p /usr/local/bin
 cp crc-linux-*-amd64/crc /usr/local/bin/
 export PATH=$PATH:/usr/local/bin
 echo 'export PATH=$PATH:root/bin' >> /root/.bashrc
+
+rm -rf crc-linux-*-amd64
+rm crc-linux-amd64.tar.xz
