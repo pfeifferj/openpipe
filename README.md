@@ -2,6 +2,8 @@ work in progress gitlab-ci pipeline that sets up openshift local in a gitlab run
 
 # OpenShift Local Cluster Integration Test Runner
 
+[![GitHub Super-Linter](https://github.com/pfeifferj/openpipe/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 This is an open source project that enables users to run integration tests against an OpenShift local cluster in their GitLab CI pipelines. The integration tests are written in any language and framework, and this tool provides an easy way to set up and tear down a local cluster for testing.
 
 OpenPipe aims to shift left integration tests by eliminating the operational overhead a full-on dev cluster brings with it.
