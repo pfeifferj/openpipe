@@ -8,7 +8,7 @@ This is an open source project that enables users to run integration tests again
 
 OpenPipe aims to shift left integration tests by eliminating the operational overhead a full-on dev cluster brings with it.
 
-If you're looking for a more lightweight, but less production-like solution that mocks the OpenShift API, check out [project].
+If you're looking for a more lightweight, but less production-like solution that mocks the OpenShift API, check out [static KAS](https://github.com/alvaroaleman/static-kas).
 
 ## Minimal requirements
 
@@ -40,14 +40,14 @@ integration_test:
 
 The pipeline should end up looking something like this:
 
-![pipeline](docs/images/pipeline.png)
+![pipeline](/docs/images/pipeline.png)
 
 Add any necessary environment variables or configuration files to the integration_test job.
 
 ### The minimal required variables are:
 
 - `PULL_SECRET` # set this variable in your repository variables, mask, and protect it. the variable value is the contnet of the pull secret file you downloaded
-- `REGISTRY_TOKRN` # token to pull from quay.io or your own registry
+- `REGISTRY_PASSWORD` # token to pull from quay.io or your own registry
 
 ### Optional variables:
 
