@@ -1,7 +1,6 @@
 variables:
   # general config
-  OPENSHIFT_VERSIONS: "latest/4.12.13/4.12.0/4.11.0/4.10.3" # versions to build images for
-  OPENSHIFT_VERSION: "4.12.0" # version to test against
+  OPENSHIFT_TEST_VERSION: "4.12.0" # version to test against
   REGISTRY_URL: "quay.io/openpipe/oc-local-runner" # define registry url
   ## RUNNER_TAG: {}
   # config to set in repo variables
@@ -60,7 +59,6 @@ stages:
   - setup
   - test
 
-# todo: turn into cluster job
 build_container_images:
   image: quay.io/podman/stable:latest
   stage: prepare-images
@@ -72,16 +70,15 @@ build_container_images:
     - git clone https://github.com/pfeifferj/openpipe && cd openpipe
     - podman login -u $REGISTRY_USER -p $REGISTRY_PASSWORD quay.io
   script:
-    - IFS='/' read -ra versions <<< "$OPENSHIFT_VERSIONS"
-    - |
-      for version in "${versions[@]}"; do 
-        podman build -t "${REGISTRY_URL}:${version}" --build-arg VERSION="$version" .
-        podman push "${REGISTRY_URL}:${version}"
-      done
+    - podman build -t "${REGISTRY_URL}:${OPENSHIFT_VERSION}" --build-arg VERSION="$OPENSHIFT_VERSION" .
+    - podman push "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
+  parallel:
+    matrix:
+      - OPENSHIFT_VERSION: [latest, 4.12.13, 4.12.0, 4.11.0, 4.10.3] # versions to build images for
 
 setup_openshift_local:
   stage: setup
-  image: "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
+  image: "${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}"
   timeout: 3h 30m
   services:
     - docker:dind
