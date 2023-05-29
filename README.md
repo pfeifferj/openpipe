@@ -38,7 +38,7 @@ integration_test:
 
 The pipeline should end up looking something like this:
 
-![pipeline](docs/images/pipeline.png)
+![pipeline](https://github.com/pfeifferj/openpipe/blob/main/docs/images/pipeline.png)
 
 Add any necessary environment variables or configuration files to the integration_test job.
 
