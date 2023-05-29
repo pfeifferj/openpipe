@@ -36,6 +36,10 @@ integration_test:
     - ./run-tests.sh
 ```
 
+The pipeline should end up looking something like this:
+
+![pipeline](docs/images/pipeline.png)
+
 Add any necessary environment variables or configuration files to the integration_test job.
 
 ### The minimal required variables are:
@@ -76,7 +80,6 @@ Alternatively, gitlab premium/ultimate subscribers have the option to use SaaS r
 
 ### Planned
 
-- Streamline gitlab pipeline to use parallel matrix
 - Functionality to cache cluster configuration (basline .crc configs, maybe also custom configs built into custom testing images to reduce cold start time)
 - Automatically map releases to OCP versions from https://github.com/crc-org/crc/releases
 
