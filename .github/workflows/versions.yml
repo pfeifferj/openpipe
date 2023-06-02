@@ -1,0 +1,38 @@
+name: Check for New Releases
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Runs every Sunday at midnight (UTC)
+
+jobs:
+  check_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install gh CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Check for new release
+        id: release
+        run: |
+          # Get the list of releases using `gh release list`
+          releases=$(gh release list --repo https://github.com/crc-org/crc/)
+
+          # Store the release list in a file
+          echo "$releases" > releases.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add releases.txt
+          git commit -m "Update releases.txt"
+          git push
