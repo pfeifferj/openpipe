@@ -1,0 +1,61 @@
+name: Check for New Releases
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Runs every Sunday at midnight (UTC)
+
+jobs:
+  check_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install gh CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Check for new release
+        id: release
+        run: |
+          # Get the list of releases 
+          releases=$(gh release list --repo https://github.com/crc-org/crc/ --exclude-pre-releases --exclude-drafts | awk NF=1 | sed 's/-/ /g')
+          versions=$(echo $releases | awk  '{print $2}' | sed -z 's/\n/, /g;s/, $/\n/')
+          openshift_version+=(, latest)
+             
+          # update files if diff, else exit
+          current_versions=$(cat .gitlab-ci.yml | grep 'OPENSHIFT_VERSION:' |  cut -d "]" -f1 | cut -d "[" -f2- | sort)
+
+          if $current_versions == $($openshift_version | sort)
+            exit
+          else
+            # replace array in gitlab ci yml
+
+            # create version map from $releases
+            # setup declare -A VERSION_MAP=(
+            
+            # replace version map
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          branch_name="$(date +%F)-bump-crc-versions"
+
+          git checkout -b $branch_name
+          git commit -am "Update crc releases"
+          git push origin $branch_name
+
+          gh pr create --draft  --base $branch_name \
+                                --body 'Added new OpenShift versions from [OpenShift Local](https://github.com/crc-org/crc/releases)' \
+                                --label 'automated' \
+                                --label 'enhancement' \
+                                --reviewer 'pfeifferj' \
+                                --title '[AUTOMATED ACTION] Add new OpenShift versions' \
+                                --repo https://github.com/pfeifferj/openpipe
