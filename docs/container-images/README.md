@@ -1,0 +1,1 @@
+optional: section on why fedora over ubi (EULA) https://developers.redhat.com/articles/ubi-faq#redistribution
