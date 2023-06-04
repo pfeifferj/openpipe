@@ -2,12 +2,13 @@ name: Check for New Releases
 
 on:
   schedule:
-    - cron: "0 0 * * 0"  # Runs every Sunday at midnight (UTC)
+    - cron: "0 0 * * 0" # Runs every Sunday at midnight (UTC)
 
 jobs:
   check_release:
     runs-on: ubuntu-latest
-
+    env: 
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -18,21 +19,51 @@ jobs:
           sudo apt-add-repository https://cli.github.com/packages
           sudo apt update
           sudo apt install -y gh
+          gh auth login --hostname github.com --git-protocol https --with-token
 
       - name: Check for new release
         id: release
         run: |
-          # Get the list of releases using `gh release list`
-          releases=$(gh release list --repo https://github.com/crc-org/crc/)
+          # Get the list of releases
+          releases=$(gh release list --repo https://github.com/crc-org/crc/ --exclude-pre-releases --exclude-drafts)
+          crc_releases=$(echo "$releases" | sed -E 's/.*\s(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          openshift_versions+="\nlatest"
+          openshift_versions=$(echo "$openshift_versions" | sort)
 
-          # Store the release list in a file
-          echo "$releases" > releases.txt
+          # Update files if there is a diff, otherwise exit
+          current_versions=$(grep -oP "(?<=OPENSHIFT_VERSION: \[).*?(?=\])" .gitlab-ci.yml | tr -d ' ' | tr ',' '\n' | sort)
+          if [[ "$current_versions" == "$openshift_versions" ]]; then
+            exit
+          else
+            # Replace the array in GitLab CI YAML
+            sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_version]/" .gitlab-ci.yml
 
+            # Create version map from $crc_releases
+            version_map="declare -A VERSION_MAP=("
+            while IFS= read -r line; do
+              version_map+="['${line%% *}]='${line##* }' "
+            done <<< "$crc_releases"
+            version_map+=")"
+            
+            # Replace version map in setup.sh
+            echo "$version_map" > setup.sh
+          fi
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          git add releases.txt
-          git commit -m "Update releases.txt"
-          git push
+          branch_name="$(date +%F)-bump-crc-versions"
+
+          git checkout -b $branch_name
+          git commit -am "Update crc releases"
+          git push origin $branch_name
+
+          gh pr create --draft  --base $branch_name \
+                                --body 'Added new OpenShift versions from [OpenShift Local](https://github.com/crc-org/crc/releases)' \
+                                --label 'automated' \
+                                --label 'enhancement' \
+                                --reviewer 'pfeifferj' \
+                                --title '[AUTOMATED ACTION] Add new OpenShift versions' \
+                                --repo https://github.com/pfeifferj/openpipe
