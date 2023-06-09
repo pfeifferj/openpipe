@@ -13,13 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install gh CLI
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install -y gh
-          gh auth login --hostname github.com --git-protocol https --with-token
+      # - name: Install gh CLI
+        # run: |
+          # sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          # sudo apt-add-repository https://cli.github.com/packages
+          # sudo apt update
+          # sudo apt install -y gh
+          # gh auth login --hostname github.com --git-protocol https --with-token
 
       - name: Check for new release
         id: release
