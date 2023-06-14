@@ -37,7 +37,7 @@ systemctl enable --now libvirtd
 
 # map crc release to openshift version 
 ## from: https://github.com/crc-org/crc/releases
-declare -A VERSION_MAP=(
+
   ["latest"]="2.20.0"
   ["4.13.0"]="2.20.0" # latest
   ["4.12.13"]="2.18.0"

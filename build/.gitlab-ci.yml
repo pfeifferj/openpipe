@@ -67,7 +67,7 @@ build_container_images:
     - dnf -y install git
     - dnf clean all
     - cd ~/
-    - git clone https://github.com/pfeifferj/openpipe && cd openpipe
+    - git clone https://github.com/pfeifferj/openpipe && cd openpipe/build
     - podman login -u $REGISTRY_USER -p $REGISTRY_PASSWORD quay.io
   script:
     - podman build -t "${REGISTRY_URL}:${OPENSHIFT_VERSION}" --build-arg VERSION="$OPENSHIFT_VERSION" .
@@ -89,7 +89,7 @@ setup_openshift_local:
     - systemctl status libvirtd.service
     - cd ~/
     - git clone https://github.com/pfeifferj/openpipe || true
-    - cd openpipe
+    - cd openpipe/build
     - /bin/bash crc-config.sh
     - echo $PULL_SECRET > pullsecret
     - crc config set pull-secret-file ./pullsecret

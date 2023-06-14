@@ -17,8 +17,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Check for new release
-        id: release
+        id: check
         run: |
+          set -e  # Exit script on first error
           # Get the list of releases
           releases=$(gh release list --repo https://github.com/crc-org/crc/ \
                                      --exclude-pre-releases \
@@ -26,16 +27,19 @@ jobs:
           crc_ocp_map=$(echo "$releases" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([0-9]+\.[0-9]+\.[0-9]+).*v([0-9]+\.[0-9]+\.[0-9]+).*/\1\tv\2/')
           openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           openshift_versions+="\nlatest"
-          openshift_versions=$(echo "$openshift_versions" | sort)
-
+          openshift_versions=$(echo "$openshift_versions" | sort) 
+      - name: Update files
+        id: update
+        run: |
           # Update files if there is a diff, otherwise exit
+          cd build || exit
           current_versions=$(grep -oP "(?<=OPENSHIFT_VERSION: \[).*?(?=\])" .gitlab-ci.yml | tr -d ' ' | tr ',' '\n' | sort)
           if [[ "$current_versions" == "$openshift_versions" ]]; then
             exit
           else
             # Replace the array in GitLab CI YAML
             sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_versions]/" .gitlab-ci.yml
-
+                                                                                                                   
             # Create properly formatted version map from $crc_ocp_map
             version_map="declare -A VERSION_MAP=("
             while IFS= read -r line; do
@@ -44,11 +48,12 @@ jobs:
               version_map+="[\"${key}\"]=\"${value}\" "
             done <<< "$crc_ocp_map"
             version_map+=")"
-
+                                                                                                                   
             # Replace version map in setup.sh
             sed -i "s/^declare -A VERSION_MAP.*/$version_map/" setup.sh
           fi
       - name: Commit and push changes
+        id: commit
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
