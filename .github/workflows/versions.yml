@@ -8,7 +8,7 @@ on:
 jobs:
   check_release:
     runs-on: ubuntu-latest
-    env: 
+    env:
       GH_TOKEN: ${{ github.token }}
     permissions:
       contents: write
@@ -25,7 +25,8 @@ jobs:
                                      --exclude-drafts)
           crc_ocp_map=$(echo "$releases" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([0-9]+\.[0-9]+\.[0-9]+).*v([0-9]+\.[0-9]+\.[0-9]+).*/\1\tv\2/')
           openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          openshift_versions+="\nlatest"
+          openshift_versions+="
+          latest"
           openshift_versions=$(echo "$openshift_versions" | sort)
 
           # Update files if there is a diff, otherwise exit
@@ -34,7 +35,8 @@ jobs:
             exit
           else
             # Replace the array in GitLab CI YAML
-            sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_versions]/" .gitlab-ci.yml
+            openshift_versions=$(echo "$openshift_versions" | awk -v d=" " '{s=(NR==1?s:s d)$0}END{print s}')
+            sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_versions]/" .gitlab-ci.yml # unescaped multiline stuff might be an isdue here...
 
             # Create properly formatted version map from $crc_ocp_map
             version_map="declare -A VERSION_MAP=("
