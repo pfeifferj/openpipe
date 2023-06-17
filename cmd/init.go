@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	// "io/ioutil"
 	"os"
 	"os/exec"
 
@@ -39,36 +39,36 @@ func cloneRepository(repoURL, destinationPath string) error {
 
 func createConfigFile(repoPath string) error {
 	fileName := ".openpipe.yaml"
-	fileContent := `# OpenPipe config file
-version: foo
-`
+	// fileContent := `# OpenPipe config file
+// version: foo
+// `
 
-	repoURL := "https://github.com/pfeifferj/openpipe.git"
+	// repoURL := "https://github.com/pfeifferj/openpipe.git"
 	destinationPath := "" // TODO: use cli flag to set
 
 	if destinationPath == "" {
 		// Use the current working directory as the destination path
 		currentDir, err := os.Getwd()
 		if err != nil {
-			return fmt.Println("Failed to get current working directory:", err)
+			// return fmt.Println("Failed to get current working directory:", err)
 		}
 		destinationPath = currentDir
 	}
 
-	err := cloneRepository(repoURL, destinationPath)
-	if err != nil {
-		return fmt.Println(err)
-	}
+	// err := cloneRepository(repoURL, destinationPath)
+	// if err != nil {
+		// return fmt.Println(err)
+	// }
 
-	err := os.Chdir(repoPath)
-	if err != nil {
-		return fmt.Errorf("failed to change directory: %v", err)
-	}
+	// err := os.Chdir(repoPath)
+	// if err != nil {
+		// return fmt.Errorf("failed to change directory: %v", err)
+	// }
 
-	err := ioutil.WriteFile(fileName, []byte(fileContent), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
-	}
+	// err := ioutil.WriteFile(fileName, []byte(fileContent), 0644)
+	// if err != nil {
+		// return fmt.Errorf("failed to create file: %v", err)
+	// }
 
 	fmt.Printf("File '%s' created successfully.\n", fileName)
 	return nil
@@ -77,8 +77,8 @@ version: foo
 func init() {
 	rootCmd.AddCommand(initCmd)
 
-	err := createConfigFile()
-	if err != nil {
-		fmt.Println(err)
-	}
+	// err := createConfigFile()
+	// if err != nil {
+		// fmt.Println(err)
+	// }
 }

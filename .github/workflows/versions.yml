@@ -8,7 +8,7 @@ on:
 jobs:
   check_release:
     runs-on: ubuntu-latest
-    env: 
+    env:
       GH_TOKEN: ${{ github.token }}
     permissions:
       contents: write
@@ -26,11 +26,8 @@ jobs:
                                      --exclude-drafts)
           crc_ocp_map=$(echo "$releases" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([0-9]+\.[0-9]+\.[0-9]+).*v([0-9]+\.[0-9]+\.[0-9]+).*/\1\tv\2/')
           openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          openshift_versions+="\nlatest"
-          openshift_versions=$(echo "$openshift_versions" | sort) 
-      - name: Update files
-        id: update
-        run: |
+          openshift_versions=$(echo "$openshift_versions" | sort)
+
           # Update files if there is a diff, otherwise exit
           cd build || exit
           current_versions=$(grep -oP "(?<=OPENSHIFT_VERSION: \[).*?(?=\])" .gitlab-ci.yml | tr -d ' ' | tr ',' '\n' | sort)
@@ -38,8 +35,9 @@ jobs:
             exit
           else
             # Replace the array in GitLab CI YAML
-            sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_versions]/" .gitlab-ci.yml
-                                                                                                                   
+            openshift_versions=$(echo "$openshift_versions" | awk -v d=" " '{s=(NR==1?s:s d)$0}END{print s}' | tr ' ' ', ')
+            sed -i "s/\(i[[:space:]]*\)- OPENSHIFT_VERSION: \[.*\]/\1- OPENSHIFT_VERSION: [$openshift_versions]/" .gitlab-ci.yml 
+
             # Create properly formatted version map from $crc_ocp_map
             version_map="declare -A VERSION_MAP=("
             while IFS= read -r line; do

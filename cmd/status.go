@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -25,16 +26,23 @@ to quickly create a Cobra application.`,
 	},
 }
 
+
+func fileExists(fileName string) bool {
+	_, err := os.Stat(fileName)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 func init() {
 	rootCmd.AddCommand(statusCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// statusCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	fileName := ".openpipe.yaml"
+	exists := fileExists(fileName)
+	if exists {
+		fmt.Printf("File '%s' exists in the current working directory.\n", fileName)
+	} else {
+		fmt.Printf("File '%s' does not exist in the current working directory.\n", fileName)
+	}
 }
