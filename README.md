@@ -8,6 +8,19 @@ OpenPipe aims to shift left integration tests by eliminating the operational ove
 
 If you're looking for a more lightweight, but less production-like solution that mocks the OpenShift API, check out [static KAS](https://github.com/alvaroaleman/static-kas).
 
+## Documentation
+- [Requirements](#minimal-requirements)
+- [Configuration](#configuration)
+- [Limitations](#limitations--pitfalls)
+- [License](#license)
+- [Contributing](#contributing)
+
+---
+
+- [Quickstart](docs/examples/README.md)
+- [Container Images](docs/container-images/README.md)
+- [GitLab Runner](docs/gitlab-runner/README.md)
+
 ## Minimal requirements
 
 - image registry credentials
@@ -21,46 +34,6 @@ If you're looking for a more lightweight, but less production-like solution that
 ## Optional
 
 - gitlab runner with connectivity to [developers.redhat.com](https://developers.redhat.com) (to build openshift local containter images from source)
-
-## Quickstart example
-
-Create a `.gitlab-ci.yml` file in the root of your project.
-Add the following job to your pipeline:
-
-```yaml
-include: "https://raw.githubusercontent.com/pfeifferj/openpipe/main/.gitlab-ci.yml"
-
-integration_test:
-  extends: setup_openshift_local
-  script:
-    - ./run-tests.sh
-```
-
-The pipeline should end up looking something like this:
-
-![pipeline](/docs/images/pipeline.png)
-
-Add any necessary environment variables or configuration files to the integration_test job.
-
-### Minimal required variables
-
-- `PULL_SECRET` # set this variable in your repository variables, mask, and protect it. the variable value is the contnet of the pull secret file you downloaded
-- `REGISTRY_PASSWORD` # token to pull from quay.io or your own registry
-
-### Optional variables
-
-- `REGISTRY_URL` # to use your image registry
-- `REGISTRY_USER` # robot username
-- `REGISTRY_PASSWORD` # robot user password
-- `RUNNER_TAG` # gitlab runner tag
-
-Create a `run-tests.sh` script in the root of your project that runs your integration tests against the OpenShift cluster.
-
-Push your changes to GitLab and watch the pipeline run the integration tests against the OpenShift local cluster.
-
-<!-- ## Available variables -->
-
-<!-- OpenShift credentials -->
 
 ## Configuration
 
