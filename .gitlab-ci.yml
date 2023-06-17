@@ -74,7 +74,7 @@ build_container_images:
     - podman push "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
   parallel:
     matrix:
-      - OPENSHIFT_VERSION: [4.13.0, 4.12.13, 4.12.0, 4.11.0, 4.10.3] # versions to build images for
+      - OPENSHIFT_VERSION: [4.10.12,4.10.14,4.10.18,4.10.22,4.10.3,4.10.9,4.11.0,4.11.1,4.11.13,4.11.18,4.11.3,4.11.7,4.11.7,4.12.0,4.12.1,4.12.13,4.12.13,4.12.5,4.12.9,4.12.9,4.13.0,4.8.12,4.8.5,4.9.0,4.9.10,4.9.12,4.9.15,4.9.18,4.9.5,4.9.8,latest]
 
 setup_openshift_local:
   stage: setup
