@@ -8,7 +8,7 @@ on:
 jobs:
   check_release:
     runs-on: ubuntu-latest
-    env: 
+    env:
       GH_TOKEN: ${{ github.token }}
     permissions:
       contents: write
@@ -23,9 +23,8 @@ jobs:
           releases=$(gh release list --repo https://github.com/crc-org/crc/ \
                                      --exclude-pre-releases \
                                      --exclude-drafts)
-          crc_releases=$(echo "$releases" | sed -E 's/.*\s(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          crc_ocp_map=$(echo "$releases" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([0-9]+\.[0-9]+\.[0-9]+).*v([0-9]+\.[0-9]+\.[0-9]+).*/\1\tv\2/')
           openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          openshift_versions+="\nlatest"
           openshift_versions=$(echo "$openshift_versions" | sort)
 
           # Update files if there is a diff, otherwise exit
@@ -34,17 +33,20 @@ jobs:
             exit
           else
             # Replace the array in GitLab CI YAML
-            sed -i "s/OPENSHIFT_VERSION:\[.*\]/OPENSHIFT_VERSION:[$openshift_version]/" .gitlab-ci.yml
+            openshift_versions=$(echo "$openshift_versions" | awk -v d=" " '{s=(NR==1?s:s d)$0}END{print s}' | tr ' ' ', ')
+            sed -i "s/\(i[[:space:]]*\)- OPENSHIFT_VERSION: \[.*\]/\1- OPENSHIFT_VERSION: [$openshift_versions]/" .gitlab-ci.yml 
 
-            # Create version map from $crc_releases
+            # Create properly formatted version map from $crc_ocp_map
             version_map="declare -A VERSION_MAP=("
             while IFS= read -r line; do
-              version_map+="['${line%% *}]='${line##* }' "
-            done <<< "$crc_releases"
+              key=$(awk '{print $1}' <<< "$line" | awk '{$1=$1};1')
+              value=$(awk '{print $NF}' <<< "$line" | awk '{$1=$1};1')
+              version_map+="[\"${key}\"]=\"${value}\" "
+            done <<< "$crc_ocp_map"
             version_map+=")"
-            
+
             # Replace version map in setup.sh
-            echo "$version_map" > setup.sh
+            sed -i "s/^declare -A VERSION_MAP.*/$version_map/" setup.sh
           fi
       - name: Commit and push changes
         run: |
@@ -57,7 +59,7 @@ jobs:
           git commit -am "Update crc releases"
           git push origin "$branch_name"
 
-          gh pr create --draft  --base "$branch_name" \
+          gh pr create --draft  --base 'main' \
                                 --body 'Added new OpenShift versions from [OpenShift Local](https://github.com/crc-org/crc/releases)' \
                                 --label 'automated' \
                                 --label 'enhancement' \
