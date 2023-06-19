@@ -56,6 +56,12 @@ jobs:
           branch_name="$(date +%F)-bump-crc-versions"
 
           git checkout -b "$branch_name"
+
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No changes to commit. Exiting..."
+            exit 0
+          fi
+
           git commit -am "Update crc releases"
           git push origin "$branch_name"
 
