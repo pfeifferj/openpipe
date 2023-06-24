@@ -1,6 +1,9 @@
 # OpenShift Local Cluster Integration Test Runner
 
 [![GitHub Super-Linter](https://github.com/pfeifferj/openpipe/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/pfeifferj/openpipe)
+![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/pfeifferj/openpipe/v0.1.1-alpha/main)
+
 
 This is an open source project that enables users to run integration tests against an OpenShift local cluster in their GitLab CI pipelines. The integration tests are written in any language and framework, and this tool provides an easy way to set up and tear down a local cluster for testing.
 
@@ -20,6 +23,9 @@ If you're looking for a more lightweight, but less production-like solution that
 - [Quickstart](docs/examples/README.md)
 - [Container Images](docs/container-images/README.md)
 - [GitLab Runner](docs/gitlab-runner/README.md)
+
+![openpipe diagram](docs/images/openpipe.drawio.png)
+<figcaption>Highlevel overview diagram of how OpenPipe works.</figcaption>
 
 ## Minimal requirements
 
