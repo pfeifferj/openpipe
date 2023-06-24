@@ -14,15 +14,17 @@ import (
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Show details about your OpenPipe project",
+	// Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
+	
+		fileName := ".openpipe.yaml"
+		exists := fileExists(fileName)
+		if exists {
+			fmt.Printf("'%s' config file exists in the current working directory.\n", fileName)
+		} else {
+			fmt.Printf("No '%s' config file found in the current working directory.\n\nRun 'openpipe init' to initialize a new openpipe project.\n", fileName)
+		}	
 	},
 }
 
@@ -37,12 +39,4 @@ func fileExists(fileName string) bool {
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
-
-	fileName := ".openpipe.yaml"
-	exists := fileExists(fileName)
-	if exists {
-		fmt.Printf("File '%s' exists in the current working directory.\n", fileName)
-	} else {
-		fmt.Printf("File '%s' does not exist in the current working directory.\n", fileName)
-	}
 }

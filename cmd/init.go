@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"fmt"
-	// "io/ioutil"
+	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -24,7 +24,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		err := createConfigFile()
+    	if err != nil {        		
+			fmt.Println(err)
+		}
 	},
 }
 
@@ -37,38 +40,38 @@ func cloneRepository(repoURL, destinationPath string) error {
 	return nil
 }
 
-func createConfigFile(repoPath string) error {
+func createConfigFile() error {
 	fileName := ".openpipe.yaml"
-	// fileContent := `# OpenPipe config file
-// version: foo
-// `
+	fileContent := `# OpenPipe config file
+version: foo
+`
 
-	// repoURL := "https://github.com/pfeifferj/openpipe.git"
-	destinationPath := "" // TODO: use cli flag to set
+	repoURL := "https://github.com/pfeifferj/openpipe.git"
+	destinationPath := ""
 
 	if destinationPath == "" {
 		// Use the current working directory as the destination path
 		currentDir, err := os.Getwd()
 		if err != nil {
-			// return fmt.Println("Failed to get current working directory:", err)
+			return fmt.Errorf("failed to get current directory: %v", err)
 		}
 		destinationPath = currentDir
 	}
 
-	// err := cloneRepository(repoURL, destinationPath)
-	// if err != nil {
-		// return fmt.Println(err)
-	// }
+	err := cloneRepository(repoURL, destinationPath)
+	if err != nil {
+		return fmt.Errorf("failed to clone repository: %v", err)
+	}
 
-	// err := os.Chdir(repoPath)
-	// if err != nil {
-		// return fmt.Errorf("failed to change directory: %v", err)
-	// }
+	err = os.Chdir(destinationPath)
+	if err != nil {
+		return fmt.Errorf("failed to change directory: %v", err)
+	}
 
-	// err := ioutil.WriteFile(fileName, []byte(fileContent), 0644)
-	// if err != nil {
-		// return fmt.Errorf("failed to create file: %v", err)
-	// }
+	err = ioutil.WriteFile(fileName, []byte(fileContent), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
 
 	fmt.Printf("File '%s' created successfully.\n", fileName)
 	return nil
@@ -76,9 +79,4 @@ func createConfigFile(repoPath string) error {
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	// err := createConfigFile()
-	// if err != nil {
-		// fmt.Println(err)
-	// }
 }
