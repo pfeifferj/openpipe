@@ -25,8 +25,18 @@ jobs:
                                      --exclude-pre-releases \
                                      --exclude-drafts)
           crc_ocp_map=$(echo "$releases" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([0-9]+\.[0-9]+\.[0-9]+).*v([0-9]+\.[0-9]+\.[0-9]+).*/\1\tv\2/')
-          openshift_versions=$(echo "$releases" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          openshift_versions=$(echo "$openshift_versions" | sort)
+          
+          # Create an associative array to keep track of the latest crc version for each OpenShift version
+          declare -A latest_crc_versions
+          while IFS= read -r line; do
+            ocp_version=$(awk '{print $1}' <<< "$line" | awk '{$1=$1};1')
+            crc_version=$(awk '{print $NF}' <<< "$line" | awk '{$1=$1};1')
+            if [[ -z "${latest_crc_versions[$ocp_version]}" || "$crc_version" > "${latest_crc_versions[$ocp_version]}" ]]; then
+              latest_crc_versions[$ocp_version]=$crc_version
+            fi
+          done <<< "$crc_ocp_map"
+          
+          openshift_versions=$(printf '%s\n' "${!latest_crc_versions[@]}" | sort)
 
           # Update files if there is a diff, otherwise exit
           cd build || exit
@@ -38,13 +48,11 @@ jobs:
             openshift_versions=$(echo "$openshift_versions" | awk -v d=" " '{s=(NR==1?s:s d)$0}END{print s}' | tr ' ' ', ')
             sed -i "s/\(i[[:space:]]*\)- OPENSHIFT_VERSION: \[.*\]/\1- OPENSHIFT_VERSION: [$openshift_versions]/" .gitlab-ci.yml 
 
-            # Create properly formatted version map from $crc_ocp_map
+            # Create properly formatted version map from $latest_crc_versions
             version_map="declare -A VERSION_MAP=("
-            while IFS= read -r line; do
-              key=$(awk '{print $1}' <<< "$line" | awk '{$1=$1};1')
-              value=$(awk '{print $NF}' <<< "$line" | awk '{$1=$1};1')
-              version_map+="[\"${key}\"]=\"${value}\" "
-            done <<< "$crc_ocp_map"
+            for key in "${!latest_crc_versions[@]}"; do
+              version_map+="[\"${key}\"]=\"${latest_crc_versions[$key]}\" "
+            done
             version_map+=")"
                                                                                                                    
             # Replace version map in setup.sh
