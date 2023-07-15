@@ -1,0 +1,36 @@
+---
+name: Build and Push Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        openshift_version: [4.10.12,4.10.14,4.10.18,4.10.22,4.10.3,4.10.9,4.11.0,4.11.1,4.11.13,4.11.18,4.11.3,4.11.7,4.12.0,4.12.1,4.12.13,4.12.5,4.12.9,4.13.0,4.8.12,4.8.5,4.9.0,4.9.10,4.9.12,4.9.15,4.9.18,4.9.5,4.9.8,latest]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./openpipe/build
+          push: true
+          tags: quay.io/${{ secrets.REGISTRY_URL }}:${{ matrix.openshift_version }}
+          build-args: VERSION=${{ matrix.openshift_version }}
