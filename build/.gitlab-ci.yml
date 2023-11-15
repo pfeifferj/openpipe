@@ -1,19 +1,19 @@
 variables:
   # general config
-  OPENSHIFT_TEST_VERSION: "4.13.0" # version to test against
-  REGISTRY_URL: "quay.io/openpipe/oc-local-runner" # define registry url
+  OPENSHIFT_TEST_VERSION: '4.13.0' # version to test against
+  REGISTRY_URL: 'quay.io/openpipe/oc-local-runner' # define registry url
   ## RUNNER_TAG: {}
   # config to set in repo variables
   ## PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local)
   ## REGISTRY_PASSWORD: {} # define this in repo variables! used to push images to your registry
   ## REGISTRY_USER: {}
   # crc config variables
-  CONSENT_TELEMETRY: "no" # Consent to collection of anonymous usage data (yes/no)
+  CONSENT_TELEMETRY: 'no' # Consent to collection of anonymous usage data (yes/no)
   CPUS: 4 # Number of CPU cores (must be greater than or equal to '4')
-  DISABLE_UPDATE_CHECK: "true" # Disable update check (true/false, default: true)
+  DISABLE_UPDATE_CHECK: 'true' # Disable update check (true/false, default: true)
   DISK_SIZE: 31 # Total size in GiB of the disk (must be greater than or equal to '31')
-  ENABLE_CLUSTER_MONITORING: "false" # Enable cluster monitoring Operator (true/false, default: false)
-  ENABLE_EXPERIMENTAL_FEATURES: "false" # Enable experimental features (true/false, default: false)
+  ENABLE_CLUSTER_MONITORING: 'false' # Enable cluster monitoring Operator (true/false, default: false)
+  ENABLE_EXPERIMENTAL_FEATURES: 'false' # Enable experimental features (true/false, default: false)
   # ENABLE_SHARED_DIRS: # Mounts host's home directory at '/' in the CRC VM (true/false, default: true)
   # HOST_NETWORK_ACCESS: # Allow TCP/IP connections from the CRC VM to services running on the host (true/false, default: false)
   # HTTP_PROXY: # HTTP proxy URL (string, like 'http://my-proxy.com:8443')
@@ -25,9 +25,9 @@ variables:
   # NAMESERVER: "" # IPv4 address of nameserver (string, like '1.1.1.1 or 8.8.8.8')
   # NETWORK_MODE: "" # Network mode (user or system)
   # NO_PROXY: "" # Hosts, ipv4 addresses or CIDR which do not use a proxy (string, comma-separated list such as '127.0.0.1,192.168.100.1/24')
-  PRESET: "openshift" # Virtual machine preset (valid values are: podman, openshift and okd)
+  PRESET: 'openshift' # Virtual machine preset (valid values are: podman, openshift and okd)
   # PROXY_CA_FILE: "" # Path to an HTTPS proxy certificate authority (CA)
-  SKIP_CHECK_ADMIN_HELPER_CACHED: "true" # Skip preflight check (true/false)
+  SKIP_CHECK_ADMIN_HELPER_CACHED: 'true' # Skip preflight check (true/false)
   # SKIP_CHECK_BUNDLE_EXTRACTED: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_CRC_DNSMASQ_FILE: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_CRC_NETWORK: false # Skip preflight check (true/false, default: false)
@@ -37,8 +37,8 @@ variables:
   # SKIP_CHECK_DAEMON_SYSTEMD_UNIT: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_KVM_ENABLED: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_DRIVER: false # Skip preflight check (true/false, default: false)
-  SKIP_CHECK_LIBVIRT_GROUP_ACTIVE: "true" # Skip preflight check (true/false, default: false)
-  SKIP_CHECK_LIBVIRT_INSTALLED: "true" # Skip preflight check (true/false, default: false)
+  SKIP_CHECK_LIBVIRT_GROUP_ACTIVE: 'true' # Skip preflight check (true/false, default: false)
+  SKIP_CHECK_LIBVIRT_INSTALLED: 'true' # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_RUNNING: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_LIBVIRT_VERSION: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_NETWORK_MANAGER_CONFIG: false # Skip preflight check (true/false, default: false)
@@ -46,10 +46,10 @@ variables:
   # SKIP_CHECK_NETWORK_MANAGER_RUNNING: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_OBSOLETE_ADMIN_HELPER: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_RAM: false # Skip preflight check (true/false, default: false)
-  SKIP_CHECK_ROOT_USER: "true" # Skip preflight check (true/false)
+  SKIP_CHECK_ROOT_USER: 'true' # Skip preflight check (true/false)
   # SKIP_CHECK_SUPPORTED_CPU_ARCH: false # Skip preflight check (true/false, default: false)
-  SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING: "true" # Skip preflight check (true/false)
-  SKIP_CHECK_USER_IN_LIBVIRT_GROUP: "true" # Skip preflight check (true/false, default: false)
+  SKIP_CHECK_SYSTEMD_NETWORKD_RUNNING: 'true' # Skip preflight check (true/false)
+  SKIP_CHECK_USER_IN_LIBVIRT_GROUP: 'true' # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_VIRT_ENABLED: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_VSOCK: false # Skip preflight check (true/false, default: false)
   # SKIP_CHECK_WSL2: false # Skip preflight check (true/false, default: false)
@@ -68,23 +68,56 @@ build_container_images:
     - dnf clean all
     - cd ~/
     - git clone https://github.com/pfeifferj/openpipe && cd openpipe/build
-    - podman login -u $REGISTRY_USER -p $REGISTRY_PASSWORD quay.io
+    - podman login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $REGISTRY_URL
   script:
     - podman build -t "${REGISTRY_URL}:${OPENSHIFT_VERSION}" --build-arg VERSION="$OPENSHIFT_VERSION" .
     - podman push "${REGISTRY_URL}:${OPENSHIFT_VERSION}"
   parallel:
     matrix:
-      - OPENSHIFT_VERSION: [4.10.12,4.10.14,4.10.18,4.10.22,4.10.3,4.10.9,4.11.0,4.11.1,4.11.13,4.11.18,4.11.3,4.11.7,4.11.7,4.12.0,4.12.1,4.12.13,4.12.13,4.12.5,4.12.9,4.12.9,4.13.0,4.8.12,4.8.5,4.9.0,4.9.10,4.9.12,4.9.15,4.9.18,4.9.5,4.9.8,latest]
+      - OPENSHIFT_VERSION:
+          [
+            4.10.12,
+            4.10.14,
+            4.10.18,
+            4.10.22,
+            4.10.3,
+            4.10.9,
+            4.11.0,
+            4.11.1,
+            4.11.13,
+            4.11.18,
+            4.11.3,
+            4.11.7,
+            4.11.7,
+            4.12.0,
+            4.12.1,
+            4.12.13,
+            4.12.13,
+            4.12.5,
+            4.12.9,
+            4.12.9,
+            4.13.0,
+            4.8.12,
+            4.8.5,
+            4.9.0,
+            4.9.10,
+            4.9.12,
+            4.9.15,
+            4.9.18,
+            4.9.5,
+            4.9.8,
+            latest,
+          ]
 
 setup_openshift_local:
   stage: setup
-  image: "${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}"
+  image: '${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}'
   timeout: 3h 30m
   services:
     - docker:dind
   variables:
-    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/1000/bus"
-    XDG_RUNTIME_DIR: "/run/user/1000"
+    DBUS_SESSION_BUS_ADDRESS: 'unix:path=/run/user/1000/bus'
+    XDG_RUNTIME_DIR: '/run/user/1000'
   before_script:
     - systemctl status libvirtd.service
     - cd ~/
