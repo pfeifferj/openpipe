@@ -7,6 +7,16 @@ variables:
   ## PULL_SECRET: "" # define this in repo variables! content of image pull secret (download from https://console.redhat.com/openshift/create/local)
   ## REGISTRY_PASSWORD: {} # define this in repo variables! used to push images to your registry
   ## REGISTRY_USER: {}
+  # cloud provider config (AWS/GCP/OpenStack)
+  ## AWS_ACCESS_KEY_ID: {} # define in repo variables for AWS
+  ## AWS_SECRET_ACCESS_KEY: {} # define in repo variables for AWS
+  ## AWS_DEFAULT_REGION: {} # define in repo variables for AWS
+  ## GOOGLE_APPLICATION_CREDENTIALS: {} # define in repo variables for GCP
+  ## GCLOUD_PROJECT: {} # define in repo variables for GCP
+  ## GCLOUD_REGION: {} # define in repo variables for GCP
+  ## GCLOUD_ZONE: {} # define in repo variables for GCP
+  ## OS_CLIENT_CONFIG_FILE: {} # define in repo variables for OpenStack
+  ## OS_CLOUD: {} # define in repo variables for OpenStack
   # crc config variables
   CONSENT_TELEMETRY: 'no' # Consent to collection of anonymous usage data (yes/no)
   CPUS: 4 # Number of CPU cores (must be greater than or equal to '4')
@@ -57,6 +67,7 @@ variables:
 stages:
   - prepare-images
   - setup
+  - setup-cloud
   - test
 
 build_container_images:
@@ -113,6 +124,8 @@ setup_openshift_local:
   stage: setup
   image: '${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}'
   timeout: 3h 30m
+  rules:
+    - if: $DEPLOYMENT_TYPE == "local" || $DEPLOYMENT_TYPE == null
   services:
     - docker:dind
   variables:
@@ -131,6 +144,97 @@ setup_openshift_local:
     - crc start
     - crc oc-env
     - crc console --credentials
+  allow_failure: true
+  tags:
+    - $RUNNER_TAG
+
+setup_openshift_cloud_aws:
+  stage: setup-cloud
+  image: '${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}'
+  timeout: 4h
+  rules:
+    - if: $DEPLOYMENT_TYPE == "cloud-aws"
+  variables:
+    PROJECT_NAME: "${CI_PROJECT_NAME}-${CI_JOB_ID}"
+  script:
+    - echo $PULL_SECRET > pullsecret
+    # Import CRC image to AWS (if not already imported)
+    - openpipe crc-cloud import 
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --output "/workspace"
+      --provider "aws"
+    # Create AWS instance
+    - openpipe crc-cloud create aws
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --output "/workspace"
+      --aws-ami-id "$(cat /workspace/image-id)"
+      --pullsecret-filepath "./pullsecret"
+      --key-filepath "/workspace/id_ecdsa"
+  after_script:
+    # Cleanup resources
+    - openpipe crc-cloud destroy
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --provider "aws"
+  allow_failure: true
+  tags:
+    - $RUNNER_TAG
+
+setup_openshift_cloud_gcp:
+  stage: setup-cloud
+  image: '${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}'
+  timeout: 4h
+  rules:
+    - if: $DEPLOYMENT_TYPE == "cloud-gcp"
+  variables:
+    PROJECT_NAME: "${CI_PROJECT_NAME}-${CI_JOB_ID}"
+  script:
+    - echo $PULL_SECRET > pullsecret
+    # Create GCP instance (image must be pre-imported)
+    - openpipe crc-cloud create gcp
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --output "/workspace"
+      --gcp-image-id "${GCP_IMAGE_ID}"
+      --pullsecret-filepath "./pullsecret"
+      --key-filepath "/workspace/id_ecdsa"
+  after_script:
+    # Cleanup resources
+    - openpipe crc-cloud destroy
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --provider "gcp"
+  allow_failure: true
+  tags:
+    - $RUNNER_TAG
+
+setup_openshift_cloud_openstack:
+  stage: setup-cloud
+  image: '${REGISTRY_URL}:${OPENSHIFT_TEST_VERSION}'
+  timeout: 4h
+  rules:
+    - if: $DEPLOYMENT_TYPE == "cloud-openstack"
+  variables:
+    PROJECT_NAME: "${CI_PROJECT_NAME}-${CI_JOB_ID}"
+  script:
+    - echo $PULL_SECRET > pullsecret
+    # Create OpenStack instance (image must be pre-imported)
+    - openpipe crc-cloud create openstack
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --output "/workspace"
+      --image "${OPENSTACK_IMAGE_ID}"
+      --network "${OPENSTACK_NETWORK}"
+      --pullsecret-filepath "./pullsecret"
+      --key-filepath "/workspace/id_ecdsa"
+  after_script:
+    # Cleanup resources
+    - openpipe crc-cloud destroy
+      --project-name "${PROJECT_NAME}"
+      --backed-url "file:///workspace"
+      --provider "openstack"
   allow_failure: true
   tags:
     - $RUNNER_TAG

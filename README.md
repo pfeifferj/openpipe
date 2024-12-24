@@ -4,7 +4,6 @@
 ![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/pfeifferj/openpipe)
 ![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/pfeifferj/openpipe/v0.1.1-alpha/main)
 
-
 This is an open source project that enables users to run integration tests against an OpenShift local cluster in their GitLab CI pipelines. The integration tests are written in any language and framework, and this tool provides an easy way to set up and tear down a local cluster for testing.
 
 OpenPipe aims to shift left integration tests by eliminating the operational overhead a full-on dev cluster brings with it.
@@ -12,6 +11,7 @@ OpenPipe aims to shift left integration tests by eliminating the operational ove
 If you're looking for a more lightweight, but less production-like solution that mocks the OpenShift API, check out [static KAS](https://github.com/alvaroaleman/static-kas).
 
 ## Documentation
+
 - [Requirements](#minimal-requirements)
 - [Configuration](#configuration)
 - [Limitations](#limitations--pitfalls)
@@ -25,6 +25,7 @@ If you're looking for a more lightweight, but less production-like solution that
 - [GitLab Runner](docs/gitlab-runner/README.md)
 
 ![openpipe diagram](docs/images/openpipe.drawio.png)
+
 <figcaption>Highlevel overview diagram of how OpenPipe works.</figcaption>
 
 ## Minimal requirements
@@ -45,7 +46,100 @@ If you're looking for a more lightweight, but less production-like solution that
 
 [openpipe container images](https://quay.io/repository/openpipe/oc-local-runner?tab=tags)
 
+### Local Setup
+
 <!-- The following environment variables can be used to configure the integration test runner: -->
+
+### Cloud Deployment (crc-cloud)
+
+OpenPipe supports running OpenShift Local on various cloud providers (AWS, GCP, OpenStack) using crc-cloud. This enables you to run integration tests in cloud environments when local virtualization is not available or when you need more resources.
+
+#### Supported Cloud Providers
+
+- **AWS**: Supports importing images and creating instances in multiple regions
+- **GCP**: Supports creating instances (manual image import required)
+- **OpenStack**: Supports creating instances (manual image import required)
+
+#### Basic Usage
+
+1. Import an image (AWS only):
+
+```bash
+openpipe crc-cloud import \
+    --project-name "my-project" \
+    --backed-url "file:///workspace" \
+    --output "/workspace" \
+    --provider "aws"
+```
+
+2. Create an instance:
+
+```bash
+# AWS
+openpipe crc-cloud create aws \
+    --project-name "my-project" \
+    --backed-url "file:///workspace" \
+    --output "/workspace" \
+    --aws-ami-id "ami-xxxx" \
+    --pullsecret-filepath "/workspace/pullsecret" \
+    --key-filepath "/workspace/id_ecdsa"
+
+# GCP
+openpipe crc-cloud create gcp \
+    --project-name "my-project" \
+    --backed-url "file:///workspace" \
+    --output "/workspace" \
+    --gcp-image-id "image-xxxx" \
+    --pullsecret-filepath "/workspace/pullsecret" \
+    --key-filepath "/workspace/id_ecdsa"
+
+# OpenStack
+openpipe crc-cloud create openstack \
+    --project-name "my-project" \
+    --backed-url "file:///workspace" \
+    --output "/workspace" \
+    --image "openshift-local-4.14.3" \
+    --network "provider_net" \
+    --pullsecret-filepath "/workspace/pullsecret" \
+    --key-filepath "/workspace/id_ecdsa"
+```
+
+3. Destroy resources:
+
+```bash
+openpipe crc-cloud destroy \
+    --project-name "my-project" \
+    --backed-url "file:///workspace" \
+    --provider "aws|gcp|openstack"
+```
+
+#### Authentication
+
+Each cloud provider requires specific environment variables for authentication:
+
+- **AWS**:
+
+  - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+  - `AWS_SESSION_TOKEN` (for temporary credentials)
+  - `AWS_PROFILE` (for multiple profiles)
+
+- **GCP**:
+
+  - `GOOGLE_APPLICATION_CREDENTIALS`
+  - `GCLOUD_PROJECT`
+  - `GCLOUD_REGION`
+  - `GCLOUD_ZONE`
+
+- **OpenStack**:
+  - `OS_CLIENT_CONFIG_FILE`
+  - `OS_CLOUD`
+
+For detailed usage and additional options, run:
+
+```bash
+openpipe crc-cloud --help
+openpipe crc-cloud [command] --help
+```
 
 ## Limitations & pitfalls
 

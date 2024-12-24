@@ -1,15 +1,12 @@
-/*
-Copyright © 2023 Josephine Pfeiffer <jpfeiffe@redhat.com>
-
-*/
-package cmd
+// Package commands implements the OpenPipe CLI commands
+package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 
+	"github.com/pfeifferj/openpipe/internal/pkg/root"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +22,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := createConfigFile()
-    	if err != nil {        		
+		if err != nil {
 			fmt.Println(err)
 		}
 	},
@@ -68,7 +65,7 @@ version: foo
 		return fmt.Errorf("failed to change directory: %v", err)
 	}
 
-	err = ioutil.WriteFile(fileName, []byte(fileContent), 0644)
+	err = os.WriteFile(fileName, []byte(fileContent), 0600)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
@@ -78,5 +75,5 @@ version: foo
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	root.RootCmd.AddCommand(initCmd)
 }

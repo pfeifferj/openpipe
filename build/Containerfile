@@ -1,15 +1,40 @@
-FROM fedora:latest
-USER root
+FROM quay.io/crcont/crc-cloud:v0.0.2 as crc-cloud
+
+FROM fedora:39
 LABEL maintainer="Josephine Pfeiffer <jpfeiffe@redhat.com>"
 
 ARG VERSION=latest
 ENV VERSION=$VERSION
 ENV SMDEV_CONTAINER_OFF=1
 
-COPY setup.sh .
-COPY crc-config.sh .
+# Create non-root user
+RUN useradd -m -s /bin/bash runner
 
+# Set working directory
+WORKDIR /app
+
+# Install required packages for both local and cloud deployments
+RUN dnf -y update && \
+    dnf -y install \
+    qemu-img-2:7.2.1 \
+    tar-2:1.34 \
+    gzip-1.12 \
+    curl-7.88.1 \
+    wget-1.21.3 \
+    && dnf clean all && \
+    rm -rf /var/cache/dnf/*
+
+# Copy files
+COPY --from=crc-cloud /usr/local/bin/crc-cloud /usr/local/bin/
+COPY setup.sh crc-config.sh ./
+
+# Run setup script
 RUN set -x && \
-    sh setup.sh --version $VERSION
+    sh setup.sh --version $VERSION && \
+    # Fix permissions
+    chown -R runner:runner /app
+
+# Switch to non-root user
+USER runner
 
 CMD ["/sbin/init"]
