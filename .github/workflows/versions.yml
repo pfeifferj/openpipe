@@ -1,6 +1,11 @@
 ---
 name: Check for New Releases
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write  # Required to modify workflow files
+
 on:
   schedule:
     - cron: "0 0 * * *" # Runs daily at midnight (UTC)
@@ -11,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
