@@ -18,28 +18,45 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        openshift_version: [4.10.12,4.10.14,4.10.18,4.10.22,4.10.3,4.10.9,4.11.0,4.11.1,4.11.13,4.11.18,4.11.3,4.11.7,4.12.0,4.12.1,4.12.13,4.12.5,4.12.9,4.13.0,4.8.12,4.8.5,4.9.0,4.9.10,4.9.12,4.9.15,4.9.18,4.9.5,4.9.8,latest]
+        openshift_version: [
+          # 4.17.x (Latest minor)
+          4.17.7, 4.17.3, 4.17.1, 4.17.0,
+          # 4.16.x
+          4.16.7, 4.16.4, 4.16.0,
+          # 4.15.x
+          4.15.17, 4.15.14, 4.15.12, 4.15.10, 4.15.3,
+          # 4.14.x
+          4.14.12, 4.14.8, 4.14.7, 4.14.3, 4.14.1,
+          # Latest
+          latest
+        ]
     steps:
     - uses: actions/checkout@v3
     - name: Build image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        tags: quay.io/${{ secrets.REGISTRY_URL }}:${{ matrix.openshift_version }}
+        tags: quay.io/openpipe/oc-local-runner:${{ matrix.openshift_version }}
         context: build
         containerfiles: |
           build/Containerfile
         build-args: |
           VERSION=${{ matrix.openshift_version }}
+          PULL_SECRET=${{ secrets.PULL_SECRET }}
+    - name: Login to Quay.io
+      uses: docker/login-action@v3
+      with:
+        registry: quay.io
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
     - name: Push image
       id: push-to-quay
       uses: redhat-actions/push-to-registry@v2
       with:
         image: ${{ steps.build-image.outputs.image }}
         tags: ${{ steps.build-image.outputs.tags }}
-        registry: quay.io/${{ secrets.REGISTRY_URL }}
-        username: ${{ secrets.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: quay.io/openpipe/oc-local-runner
 
     - name: Print image url
       run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
