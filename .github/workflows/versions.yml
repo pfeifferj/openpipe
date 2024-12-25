@@ -1,18 +1,21 @@
 ---
 name: Check for New Releases
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write  # Required to modify workflow files
+
 on:
   schedule:
     - cron: "0 0 * * *" # Runs daily at midnight (UTC)
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   check_release:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -47,6 +50,11 @@ jobs:
             # Replace the array in GitLab CI YAML
             openshift_versions=$(echo "$openshift_versions" | awk -v d=" " '{s=(NR==1?s:s d)$0}END{print s}' | tr ' ' ', ')
             sed -i "s/\(i[[:space:]]*\)- OPENSHIFT_VERSION: \[.*\]/\1- OPENSHIFT_VERSION: [$openshift_versions]/" .gitlab-ci.yml 
+            
+            # Update GitHub Actions workflow
+            cd ../.github/workflows
+            sed -i "s/openshift_version: \[.*\]/openshift_version: [$openshift_versions]/" build_images.yml
+            cd ../../build
 
             # Create properly formatted version map from $latest_crc_versions
             version_map="declare -A VERSION_MAP=("
