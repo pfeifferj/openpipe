@@ -1,6 +1,15 @@
 #!/bin/bash
 
+# Check if CRC bundle is already cached
+if [ -d "/home/runner/.crc/cache" ]; then
+    echo "Using cached CRC bundle"
+else
+    echo "CRC bundle not found in cache, performing setup"
+    crc setup
+fi
+
 # List of configurations that can be set
+# Note: These will override the baseline configs set during image build
 configurations=(
   "consent-telemetry"
   "cpus"
@@ -54,11 +63,11 @@ configurations=(
 for config in "${configurations[@]}"
 do
   # Get the value of the environment variable with the same key as the config variable
-  env_var=$(env | tr '[:upper:]' '[:lower:]' | tr '_' '-' | grep $config)
+  env_var=$(env | tr '[:upper:]' '[:lower:]' | tr '_' '-' | grep "$config")
   value="${env_var#*=}"
 
   # Check if the environment variable is set
-  if [[ -n "$value" && "$env_var" =~ "$config=" ]]
+  if [[ -n "$value" && "$env_var" =~ $config= ]]
   then
     # Set the configuration using crc
     crc config set "$config" "$value"

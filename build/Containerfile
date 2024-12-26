@@ -4,7 +4,9 @@ FROM fedora:39
 LABEL maintainer="Josephine Pfeiffer <jpfeiffe@redhat.com>"
 
 ARG VERSION=latest
+ARG PULL_SECRET
 ENV VERSION=$VERSION
+ENV PULL_SECRET=$PULL_SECRET
 ENV SMDEV_CONTAINER_OFF=1
 
 # Create non-root user
@@ -13,14 +15,22 @@ RUN useradd -m -s /bin/bash runner
 # Set working directory
 WORKDIR /app
 
-# Install required packages for both local and cloud deployments
+# Install required packages
 RUN dnf -y update && \
     dnf -y install \
-    qemu-img-2:7.2.1 \
-    tar-2:1.34 \
-    gzip-1.12 \
-    curl-7.88.1 \
-    wget-1.21.3 \
+    qemu-img-2:8.1.3-5.fc39 \
+    tar-2:1.35-2.fc39 \
+    gzip-1.12-6.fc39 \
+    curl-8.2.1-5.fc39 \
+    wget-1.21.4-1.fc39 \
+    libvirt-9.7.0-4.fc39 \
+    libvirt-daemon-kvm-9.7.0-4.fc39 \
+    qemu-kvm-2:8.1.3-5.fc39 \
+    xz-5.4.4-1.fc39 \
+    util-linux-2.39.4-1.fc39 \
+    git-2.47.0-1.fc39 \
+    file-5.44-5.fc39 \
+    jq-1.6-17.fc39 \
     && dnf clean all && \
     rm -rf /var/cache/dnf/*
 
@@ -28,11 +38,19 @@ RUN dnf -y update && \
 COPY --from=crc-cloud /usr/local/bin/crc-cloud /usr/local/bin/
 COPY setup.sh crc-config.sh ./
 
-# Run setup script
+# Install and configure CRC
 RUN set -x && \
+    # Install CRC binary
     sh setup.sh --version $VERSION && \
+    # Create required directories
+    mkdir -p /home/runner/.crc && \
     # Fix permissions
-    chown -R runner:runner /app
+    chown -R runner:runner /app /home/runner/.crc && \
+    # Configure CRC as runner user
+    runuser -u runner -- /usr/local/bin/crc config set consent-telemetry yes && \
+    runuser -u runner -- /usr/local/bin/crc config set memory 11264 && \
+    runuser -u runner -- /usr/local/bin/crc config set disk-size 31 && \
+    runuser -u runner -- /usr/local/bin/crc config set enable-cluster-monitoring false
 
 # Switch to non-root user
 USER runner
